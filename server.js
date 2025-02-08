@@ -11,7 +11,8 @@ const PORT = 8055;
 // MongoDB connection URL
 // const mongoURI = "mongodb://127.0.0.1:27017/amman_wb"; // Replace 'mydatabase' with your database name
 const mongoURI =
-  "mongodb+srv://sathizzkumarr:tDfntPDRsmrt7BKP@cluster0.negxa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"; // Replace 'mydatabase' with your database name
+  "mongodb+srv://sathizzkumarr:tDfntPDRsmrt7BKP@cluster0.negxa.mongodb.net/?retryWrites=true&w=majority&ssl=true&sslValidate=false"; // Replace 'mydatabase' with your database name
+mongodb+srv://sathizzkumarr:tDfntPDRsmrt7BKP@cluster0.mongodb.net/mernDB?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true
 
 // Connect to MongoDB
 mongoose.connect(mongoURI, {
