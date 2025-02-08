@@ -5,7 +5,6 @@ const createUser = async (req, res) => {
     const lastUser = await User.findOne().sort({ customerId: -1 });
     console.log("lstuser", lastUser);
 
-    // Generate new customerId
     let newCustomerId = "CUST10001"; // Default value
     if (lastUser) {
       // Extract the numeric part of the last customerId (e.g., '10001' from 'CUST10001')
