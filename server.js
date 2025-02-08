@@ -1,4 +1,3 @@
-// index.js
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -8,23 +7,20 @@ const user = require("./routes/user");
 const app = express();
 const PORT = 8055;
 
-// MongoDB connection URL
-// const mongoURI = "mongodb://127.0.0.1:27017/amman_wb"; // Replace 'mydatabase' with your database name
+// ✅ MongoDB Connection String (Replace 'mydatabase' with your actual database name)
 const mongoURI =
-  "mongodb+srv://sathizzkumarr:tDfntPDRsmrt7BKP@cluster0.negxa.mongodb.net/?retryWrites=true&w=majority&ssl=true&sslValidate=false"; // Replace 'mydatabase' with your database name
+  "mongodb+srv://sathizzkumarr:tDfntPDRsmrt7BKP@cluster0.negxa.mongodb.net/mydatabase?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true";
 
+// ✅ Connect to MongoDB
+mongoose
+  .connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    tlsAllowInvalidCertificates: true, // ✅ Fix for TLS issues
+  })
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB Connection Error:", err));
 
-// Connect to MongoDB
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => {
-  console.log("Connected to MongoDB");
-});
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(
@@ -37,7 +33,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: false }));
 app.use("/api/user", user);
 
-// Start the server
+// ✅ Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
