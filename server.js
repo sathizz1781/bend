@@ -11,7 +11,7 @@ const PORT = 8055;
 // MongoDB connection URL
 // const mongoURI = "mongodb://127.0.0.1:27017/amman_wb"; // Replace 'mydatabase' with your database name
 const mongoURI =
-  "mongodb+srv://sathizzkumarr:tDfntPDRsmrt7BKP@cluster0.negxa.mongodb.net/"; // Replace 'mydatabase' with your database name
+  "mongodb+srv://sathizzkumarr:tDfntPDRsmrt7BKP@cluster0.negxa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"; // Replace 'mydatabase' with your database name
 
 // Connect to MongoDB
 mongoose.connect(mongoURI, {
