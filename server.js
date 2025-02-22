@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const user = require("./routes/user");
+const wb = require("./require/wb");
 
 const app = express();
 const PORT = 8055;
@@ -32,6 +33,7 @@ app.use(
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: false }));
 app.use("/api/user", user);
+app.use("/api/wb", wb);
 
 // ✅ Start the server
 app.listen(PORT, () => {
