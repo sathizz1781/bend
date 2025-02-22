@@ -1,8 +1,13 @@
-const getLastBill = async (req, res) => {
-  try {
-    const users = await User.find().sort({ customerId: -1 });
+const mongoose = require("mongoose");
 
-    res.status(200).json({ message: "Users retrieved successfully", users });
+const getLastBill = async (req, res) => {
+  const collection = mongoose.connection.db.collection("wb");
+  try {
+    const lastRecord = await collection.findOne({}, { sort: { sl_no: -1 } });
+
+    if (!lastRecord) {
+      return res.status(404).json({ message: "No records found" });
+    }
   } catch (error) {
     console.error("Error getting users:", error);
     res.status(500).json({ message: "Internal server error" });
