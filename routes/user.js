@@ -5,7 +5,7 @@ const path = require("path");
 const { createUser, userList,updateUser } = require("../modules/user");
 
 router.post("/createuser", createUser);
-router.post("/updateuser", updateUser);
+router.post("/updateuser/:customerId", updateUser);
 router.get("/userlist", userList);
 
 module.exports = router;
