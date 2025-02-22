@@ -42,7 +42,34 @@ const createUser = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+const updateUser = async(req,res)=>{
+  try{
+    const { customerId } = req.params; 
+    const updateData = { ...req.body };
 
+    // Optionally remove fields that shouldn't be updated (e.g., customerId)
+    delete updateData.customerId;
+
+    // Assuming db is your connected database instance
+    const updatedUser = await User.findOneAndUpdate(
+      { customerId },
+      { $set: updateData },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User updated successfully",
+      user: updatedUser,
+    });
+  }catch(error){
+    console.error("Error creating user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
 const userList = async (req, res) => {
   try {
     const users = await User.find().sort({ customerId: -1 });
