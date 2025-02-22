@@ -3,11 +3,15 @@ const mongoose = require("mongoose");
 const getLastBill = async (req, res) => {
   const collection = mongoose.connection.db.collection("wb");
   try {
-    const lastRecord = await collection.findOne({}, { sort: { sl_no: -1 } });
+    const lastRecord = await mongoose.connection.db
+      .collection("wb")
+      .findOne({}, { sort: { sl_no: -1 } }); // Corrected syntax
 
     if (!lastRecord) {
       return res.status(404).json({ message: "No records found" });
     }
+
+    res.status(200).json({ message: "Last record retrieved successfully", data: lastRecord });
   } catch (error) {
     console.error("Error getting users:", error);
     res.status(500).json({ message: "Internal server error" });
