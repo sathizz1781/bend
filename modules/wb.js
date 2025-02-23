@@ -20,6 +20,7 @@ const getLastBill = async (req, res) => {
 const getPrevWeightOfVehicle = async (req, res) => {
   const collection = mongoose.connection.db.collection("wb");
   try {
+console.log(req.body)
     let {vehicleNo} = req.body
     const lastRecord = await mongoose.connection.db
       .collection("wb")
