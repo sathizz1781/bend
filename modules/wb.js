@@ -40,4 +40,25 @@ console.log(req.body);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-module.exports = { getLastBill,getPrevWeightOfVehicle };
+const getRecords =  async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  if (!startDate || !endDate) {
+    return res.status(400).json({ message: "Start date and end date are required" });
+  }
+
+  try {
+    const records =  await mongoose.connection.db
+      .collection("wb").find({
+      date: { $gte: startDate, $lte: endDate },
+      time: { $gte: "00:00:00", $lte: "23:59:59" } // Time between full day
+    }).sort({ sl_no: -1 })
+      .toArray();
+
+    res.json({ records });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching records", error });
+  }
+});
+
+module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords };
