@@ -22,7 +22,7 @@ const getCharges = async (req, res) => {
   try {
     const chargeDetails = await mongoose.connection.db
       .collection("charges")
-      .findOne({}); // Corrected syntax
+      .find({}); // Corrected syntax
 
     if (!chargeDetails) {
       return res.status(404).json({ message: "No records found" });
