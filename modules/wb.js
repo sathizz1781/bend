@@ -17,6 +17,23 @@ const getLastBill = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+const getCharges = async (req, res) => {
+  
+  try {
+    const chargeDetails = await mongoose.connection.db
+      .collection("charges")
+      .findOne({}); // Corrected syntax
+
+    if (!chargeDetails) {
+      return res.status(404).json({ message: "No records found" });
+    }
+
+    res.status(200).json({ message: "Charge data", data: chargeDetails });
+  } catch (error) {
+    console.error("Error getting users:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 const getPrevWeightOfVehicle = async (req, res) => {
   
   try {
@@ -65,4 +82,4 @@ const getRecords =  async (req, res) => {
   }
 }
 
-module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords };
+module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords,getCharges };
