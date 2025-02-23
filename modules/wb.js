@@ -41,18 +41,21 @@ console.log(req.body);
   }
 };
 const getRecords =  async (req, res) => {
-  const { startDate, endDate } = req.body;
-console.log(req.body)
+  const { startDate, endDate,vehicleNo } = req.body;
+// console.log(req.body)
   if (!startDate || !endDate) {
     return res.status(400).json({ message: "Start date and end date are required" });
   }
 
   try {
-    const records =  await mongoose.connection.db
-      .collection("wb").find({
+    let query = {
       date: { $gte: startDate, $lte: endDate },
       time: { $gte: "00:00:00", $lte: "23:59:59" } // Time between full day
-    }).sort({ sl_no: -1 })
+    }
+    if(vehicleNo){
+      query.vehicle_no = vehicleNo
+    const records =  await mongoose.connection.db
+      .collection("wb").find(query).sort({ sl_no: -1 })
       .toArray();
 
     res.json({ records });
