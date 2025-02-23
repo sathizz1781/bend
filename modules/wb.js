@@ -81,5 +81,45 @@ const getRecords =  async (req, res) => {
     res.status(500).json({ message: "Error fetching records", error });
   }
 }
+const postBill = async(req,res)=>{
+  try{
+  let bodyData = req.body
+  let insertRecord = {
+  "sl_no": bodyData.billNo,
+  "date": bodyData.date,
+  "time": bodyData.time,
+  "vehicle_no": bodyData.vehicleNo,
+  "material_name": bodyData.material,
+  "party_name": bodyData.party,
+  "charges": Number(bodyData.charges),
+  "paid_status":bodyData.paidStatus,
+  "first_weight": isNaN(Number(bodyData.firstWeight))
+      ? 0
+      : Number(bodyData.firstWeight),
+  "second_weight": isNaN(Number(bodyData.secondWeight))
+      ? 0
+      : Number(bodyData.secondWeight),
+  "net_weight": isNaN(Number(bodyData.netWeight))
+      ? 0
+      : Number(bodyData.netWeight),
+  "whatsapp": bodyData.whatsappNumber
 
-module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords,getCharges };
+  }
+  const result = await mongoose.connection.db
+      .collection("wb")
+      .insertOne(insertRecord);
+
+    if (result.insertedCount === 1) {
+      res.status(201).json({
+        message: "Bill inserted successfully",
+        data: result.ops ? result.ops[0] : insertRecord,
+      });
+    } else {
+      res.status(500).json({ message: "Failed to insert bill" });
+    }
+  }catch(error){
+     console.error("Error inserting bill:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords,getCharges,postBill };
