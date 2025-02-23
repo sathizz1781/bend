@@ -53,7 +53,7 @@ const getRecords =  async (req, res) => {
       time: { $gte: "00:00:00", $lte: "23:59:59" } // Time between full day
     }
     if(vehicleNo){
-      query.vehicle_no = vehicleNo
+      query = {vehicle_no:vehicleNo}
     }
     const records =  await mongoose.connection.db
       .collection("wb").find(query).sort({ sl_no: -1 })
