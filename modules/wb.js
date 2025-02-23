@@ -41,7 +41,7 @@ console.log(req.body);
   }
 };
 const getRecords =  async (req, res) => {
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate } = req.body;
 
   if (!startDate || !endDate) {
     return res.status(400).json({ message: "Start date and end date are required" });
