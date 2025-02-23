@@ -18,19 +18,19 @@ const getLastBill = async (req, res) => {
   }
 };
 const getCharges = async (req, res) => {
-  
   try {
     const chargeDetails = await mongoose.connection.db
       .collection("charges")
-      .find({}); // Corrected syntax
+      .find({})
+      .toArray(); // Convert cursor to array
 
-    if (!chargeDetails) {
+    if (!chargeDetails || chargeDetails.length === 0) {
       return res.status(404).json({ message: "No records found" });
     }
 
     res.status(200).json({ message: "Charge data", data: chargeDetails });
   } catch (error) {
-    console.error("Error getting users:", error);
+    console.error("Error getting charges:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
