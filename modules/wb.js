@@ -54,6 +54,7 @@ const getRecords =  async (req, res) => {
     }
     if(vehicleNo){
       query.vehicle_no = vehicleNo
+    }
     const records =  await mongoose.connection.db
       .collection("wb").find(query).sort({ sl_no: -1 })
       .toArray();
