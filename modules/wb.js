@@ -109,10 +109,9 @@ const postBill = async(req,res)=>{
       .collection("wb")
       .insertOne(insertRecord);
 
-    if (result.insertedCount === 1) {
+    if (result) {
       res.status(201).json({
-        message: "Bill inserted successfully",
-        data: result.ops ? result.ops[0] : insertRecord,
+        message: "Bill inserted successfully"
       });
     } else {
       res.status(500).json({ message: "Failed to insert bill" });
