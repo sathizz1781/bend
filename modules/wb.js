@@ -57,30 +57,32 @@ console.log(req.body);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-// const getRecords =  async (req, res) => {
-//   const { startDate, endDate,vehicleNo } = req.body;
-// // console.log(req.body)
-//   if (!startDate || !endDate) {
-//     return res.status(400).json({ message: "Start date and end date are required" });
-//   }
+const updatePaidStatus = async (req, res) => {
+  const { sl_nos } = req.body;
 
-//   try {
-//     let query = {
-//       date: { $gte: startDate, $lte: endDate },
-//       time: { $gte: "00:00:00", $lte: "23:59:59" } // Time between full day
-//     }
-//     if(vehicleNo){
-//       query = {vehicle_no:vehicleNo}
-//     }
-//     const records =  await mongoose.connection.db
-//       .collection("wb").find(query).sort({ sl_no: -1 })
-//       .toArray();
+  if (!sl_nos || !Array.isArray(sl_nos) || sl_nos.length === 0) {
+    return res.status(400).json({ message: "sl Nos array is required" });
+  }
 
-//     res.json({ records });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error fetching records", error });
-//   }
-// }
+  try {
+    const result = await mongoose.connection.db
+      .collection("wb")
+      .updateMany(
+        { sl_no: { $in: sl_nos } },
+        { $set: { paid_status: true } }
+      );
+
+    res.json({
+      message: "Paid status updated successfully",
+      matched: result.matchedCount,
+      modified: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error("Error updating paid_status:", error);
+    res.status(500).json({ message: "Error updating paid_status", error });
+  }
+};
+
 
 const getRecords = async (req, res) => {
   const { startDate, endDate, vehicleNo, partyName } = req.body;
@@ -221,4 +223,4 @@ const getSingleRecord = async (req, res) => {
   }
 };
 
-module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords,getCharges,postBill,getSingleRecord };
+module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords,getCharges,postBill,getSingleRecord,updatePaidStatus };
