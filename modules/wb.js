@@ -121,4 +121,28 @@ const postBill = async(req,res)=>{
     res.status(500).json({ message: "Internal server error" });
   }
 }
-module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords,getCharges,postBill };
+const getSingleRecord = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { sl_no } = req.body;
+
+    if (!sl_no) {
+      return res.status(400).json({ message: "sl_no is required" });
+    }
+
+    const record = await mongoose.connection.db
+      .collection("wb")
+      .findOne({ sl_no });
+
+    if (!record) {
+      return res.status(404).json({ message: "No record found" });
+    }
+
+    res.status(200).json({ message: "Record found", data: record });
+  } catch (error) {
+    console.error("Error getting record:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords,getCharges,postBill,getSingleRecord };
