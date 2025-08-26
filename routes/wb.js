@@ -9,6 +9,6 @@ router.post("/getprevweightofvehicle", getPrevWeightOfVehicle);
 router.post("/postbill", postBill);
 router.post("/getrecords", getRecords );
 router.get("/charges", getCharges );
-router.post("/getrecords", getSingleRecord );
+router.post("/getsinglerecords", getSingleRecord );
 
 module.exports = router;
