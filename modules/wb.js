@@ -86,56 +86,67 @@ const getRecords = async (req, res) => {
   const { startDate, endDate, vehicleNo, partyName } = req.body;
 
   if (!startDate || !endDate) {
-    return res.status(400).json({ message: "Start date and end date are required" });
+    return res
+      .status(400)
+      .json({ message: "Start date and end date are required" });
   }
 
   try {
-    const matchConditions = [];
+    // Convert input dd/MM/yyyy strings -> real Date objects
+    const parseDate = (str) => {
+      const [d, m, y] = str.split("/").map(Number);
+      return new Date(y, m - 1, d);
+    };
 
-    // date range filter (parse string to date object inside query)
-    matchConditions.push({
-      parsedDate: {
-        $gte: new Date(startDate),  // expects JS date (YYYY-MM-DD works fine here)
-        $lte: new Date(endDate)
-      }
-    });
+    const start = parseDate(startDate);
+    const end = parseDate(endDate);
 
-    // time filter
-    matchConditions.push({
-      time: { $gte: "00:00:00", $lte: "23:59:59" }
-    });
-
-    // vehicle filter
-    if (vehicleNo) {
-      matchConditions.push({ vehicle_no: vehicleNo });
-    }
-
-    // partyName filter (regex, case-insensitive)
-    if (partyName) {
-      matchConditions.push({ partyName: { $regex: partyName, $options: "i" } });
-    }
+    // Build aggregation pipeline
+    const pipeline = [
+      {
+        $addFields: {
+          // normalize date string -> always dd/MM/yyyy
+          normDate: {
+            $dateFromString: {
+              dateString: {
+                $concat: [
+                  {
+                    $cond: [
+                      { $lt: [{ $strLenCP: { $arrayElemAt: [{ $split: ["$date", "/"] }, 0] } }, 2] },
+                      { $concat: ["0", { $arrayElemAt: [{ $split: ["$date", "/"] }, 0] }] },
+                      { $arrayElemAt: [{ $split: ["$date", "/"] }, 0] }
+                    ]
+                  },
+                  "/",
+                  {
+                    $cond: [
+                      { $lt: [{ $strLenCP: { $arrayElemAt: [{ $split: ["$date", "/"] }, 1] } }, 2] },
+                      { $concat: ["0", { $arrayElemAt: [{ $split: ["$date", "/"] }, 1] }] },
+                      { $arrayElemAt: [{ $split: ["$date", "/"] }, 1] }
+                    ]
+                  },
+                  "/",
+                  { $arrayElemAt: [{ $split: ["$date", "/"] }, 2] }
+                ]
+              },
+              format: "%d/%m/%Y"
+            }
+          }
+        }
+      },
+      {
+        $match: {
+          normDate: { $gte: start, $lte: end },
+          ...(vehicleNo ? { vehicle_no: vehicleNo } : {}),
+          ...(partyName ? { partyName: { $regex: partyName, $options: "i" } } : {})
+        }
+      },
+      { $sort: { sl_no: -1 } }
+    ];
 
     const records = await mongoose.connection.db
       .collection("wb")
-      .aggregate([
-        {
-          $addFields: {
-            parsedDate: {
-              $dateFromString: {
-                dateString: "$date",
-                format: "%d/%m/%Y",  // handles 2/2/2025 and 02/02/2025
-                onError: null
-              }
-            }
-          }
-        },
-        {
-          $match: { $and: matchConditions }
-        },
-        {
-          $sort: { sl_no: -1 }
-        }
-      ])
+      .aggregate(pipeline)
       .toArray();
 
     res.json({ records });
@@ -144,6 +155,7 @@ const getRecords = async (req, res) => {
     res.status(500).json({ message: "Error fetching records", error });
   }
 };
+
 
 const postBill = async(req,res)=>{
   try{
