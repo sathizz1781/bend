@@ -57,30 +57,94 @@ console.log(req.body);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-const getRecords =  async (req, res) => {
-  const { startDate, endDate,vehicleNo } = req.body;
-// console.log(req.body)
+// const getRecords =  async (req, res) => {
+//   const { startDate, endDate,vehicleNo } = req.body;
+// // console.log(req.body)
+//   if (!startDate || !endDate) {
+//     return res.status(400).json({ message: "Start date and end date are required" });
+//   }
+
+//   try {
+//     let query = {
+//       date: { $gte: startDate, $lte: endDate },
+//       time: { $gte: "00:00:00", $lte: "23:59:59" } // Time between full day
+//     }
+//     if(vehicleNo){
+//       query = {vehicle_no:vehicleNo}
+//     }
+//     const records =  await mongoose.connection.db
+//       .collection("wb").find(query).sort({ sl_no: -1 })
+//       .toArray();
+
+//     res.json({ records });
+//   } catch (error) {
+//     res.status(500).json({ message: "Error fetching records", error });
+//   }
+// }
+
+const getRecords = async (req, res) => {
+  const { startDate, endDate, vehicleNo, partyName } = req.body;
+
   if (!startDate || !endDate) {
     return res.status(400).json({ message: "Start date and end date are required" });
   }
 
   try {
-    let query = {
-      date: { $gte: startDate, $lte: endDate },
-      time: { $gte: "00:00:00", $lte: "23:59:59" } // Time between full day
+    const matchConditions = [];
+
+    // date range filter (parse string to date object inside query)
+    matchConditions.push({
+      parsedDate: {
+        $gte: new Date(startDate),  // expects JS date (YYYY-MM-DD works fine here)
+        $lte: new Date(endDate)
+      }
+    });
+
+    // time filter
+    matchConditions.push({
+      time: { $gte: "00:00:00", $lte: "23:59:59" }
+    });
+
+    // vehicle filter
+    if (vehicleNo) {
+      matchConditions.push({ vehicle_no: vehicleNo });
     }
-    if(vehicleNo){
-      query = {vehicle_no:vehicleNo}
+
+    // partyName filter (regex, case-insensitive)
+    if (partyName) {
+      matchConditions.push({ partyName: { $regex: partyName, $options: "i" } });
     }
-    const records =  await mongoose.connection.db
-      .collection("wb").find(query).sort({ sl_no: -1 })
+
+    const records = await mongoose.connection.db
+      .collection("wb")
+      .aggregate([
+        {
+          $addFields: {
+            parsedDate: {
+              $dateFromString: {
+                dateString: "$date",
+                format: "%d/%m/%Y",  // handles 2/2/2025 and 02/02/2025
+                onError: null
+              }
+            }
+          }
+        },
+        {
+          $match: { $and: matchConditions }
+        },
+        {
+          $sort: { sl_no: -1 }
+        }
+      ])
       .toArray();
 
     res.json({ records });
   } catch (error) {
+    console.error("Error fetching records:", error);
     res.status(500).json({ message: "Error fetching records", error });
   }
-}
+};
+
 const postBill = async(req,res)=>{
   try{
   let bodyData = req.body
