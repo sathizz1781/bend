@@ -45,7 +45,7 @@ const getVehicleChargeExtremes = async (req, res) => {
     const results = await mongoose.connection.db
       .collection("charges")
       .aggregate([
-        { $match: { vehicleNo } }, // filter by vehicle number
+        { $match: { vehicle_no:vehicleNo } }, // filter by vehicle number
         { $sort: { sl_no: -1 } }, // sort by recency (assuming createdAt exists)
         {
           $facet: {
