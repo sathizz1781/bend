@@ -26,10 +26,10 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(
   cors({
-    origin: [/.[0-9]{4}/],
-    credentials: true,
+    origin: "*",   // ✅ allow ALL domains
   })
 );
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: false }));
 app.use("/api/user", user);
