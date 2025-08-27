@@ -11,5 +11,7 @@ router.post("/getrecords", getRecords );
 router.get("/charges", getCharges );
 router.post("/getsinglerecords", getSingleRecord );
 router.post("/updatepaymentstatus", updatePaidStatus );
+router.get("/getchargeextremes/:vehicleNo", getVehicleChargeExtremes);
+
 
 module.exports = router;
