@@ -44,7 +44,7 @@ const getVehicleChargeExtremes = async (req, res) => {
 
     // Step 1: find the highest charge
     const [maxResult] = await mongoose.connection.db
-      .collection("charges")
+      .collection("wb")
       .find({ vehicle_no: vehicleNo })
       .sort({ charges: -1, sl_no: -1 })
       .limit(1)
@@ -56,7 +56,7 @@ const getVehicleChargeExtremes = async (req, res) => {
 
     // Step 2: find the next highest strictly less than max charges
     const [nextMaxResult] = await mongoose.connection.db
-      .collection("charges")
+      .collection("wb")
       .find({
         vehicle_no: vehicleNo,
         charges: { $lt: maxResult.charges } // strictly less
