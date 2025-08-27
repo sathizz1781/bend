@@ -34,6 +34,54 @@ const getCharges = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+const getVehicleChargeExtremes = async (req, res) => {
+  try {
+    const { vehicleNo } = req.params; // assuming vehicleNo comes from route param
+
+    if (!vehicleNo) {
+      return res.status(400).json({ message: "vehicleNo is required" });
+    }
+
+    const results = await mongoose.connection.db
+      .collection("charges")
+      .aggregate([
+        { $match: { vehicleNo } }, // filter by vehicle number
+        { $sort: { sl_no: -1 } }, // sort by recency (assuming createdAt exists)
+        {
+          $facet: {
+            highest: [
+              { $sort: { charges: -1 } }, // highest charges first
+              { $limit: 1 },
+            ],
+            lowest: [
+              { $sort: { charges: 1 } }, // lowest charges first
+              { $limit: 1 },
+            ],
+          },
+        },
+        {
+          $project: {
+            highest: { $arrayElemAt: ["$highest", 0] },
+            lowest: { $arrayElemAt: ["$lowest", 0] },
+          },
+        },
+      ])
+      .toArray();
+
+    if (!results || results.length === 0) {
+      return res.status(404).json({ message: "No records found" });
+    }
+
+    res.status(200).json({
+      message: "Vehicle charge extremes",
+      data: results[0],
+    });
+  } catch (error) {
+    console.error("Error getting charges:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const getPrevWeightOfVehicle = async (req, res) => {
   
   try {
@@ -223,4 +271,4 @@ const getSingleRecord = async (req, res) => {
   }
 };
 
-module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords,getCharges,postBill,getSingleRecord,updatePaidStatus };
+module.exports = { getLastBill,getPrevWeightOfVehicle,getRecords,getCharges,postBill,getSingleRecord,updatePaidStatus,getVehicleChargeExtremes };
