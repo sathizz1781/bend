@@ -36,51 +36,48 @@ const getCharges = async (req, res) => {
 };
 const getVehicleChargeExtremes = async (req, res) => {
   try {
-    const { vehicleNo } = req.params; // assuming vehicleNo comes from route param
+    const { vehicleNo } = req.params;
 
     if (!vehicleNo) {
-      return res.status(400).json({ message: "vehicleNo is required" });
+      return res.status(400).json({ message: "vehicle_no is required" });
     }
 
-    const results = await mongoose.connection.db
+    // Step 1: find the highest charge
+    const [maxResult] = await mongoose.connection.db
       .collection("charges")
-      .aggregate([
-        { $match: { vehicle_no:vehicleNo } }, // filter by vehicle number
-        { $sort: { sl_no: -1 } }, // sort by recency (assuming createdAt exists)
-        {
-          $facet: {
-            highest: [
-              { $sort: { charges: -1 } }, // highest charges first
-              { $limit: 1 },
-            ],
-            lowest: [
-              { $sort: { charges: 1 } }, // lowest charges first
-              { $limit: 1 },
-            ],
-          },
-        },
-        {
-          $project: {
-            highest: { $arrayElemAt: ["$highest", 0] },
-            lowest: { $arrayElemAt: ["$lowest", 0] },
-          },
-        },
-      ])
+      .find({ vehicle_no: vehicleNo })
+      .sort({ charges: -1, sl_no: -1 })
+      .limit(1)
       .toArray();
 
-    if (!results || results.length === 0) {
+    if (!maxResult) {
       return res.status(404).json({ message: "No records found" });
     }
 
+    // Step 2: find the next highest strictly less than max charges
+    const [nextMaxResult] = await mongoose.connection.db
+      .collection("charges")
+      .find({
+        vehicle_no: vehicleNo,
+        charges: { $lt: maxResult.charges } // strictly less
+      })
+      .sort({ charges: -1, sl_no: -1 })
+      .limit(1)
+      .toArray();
+
     res.status(200).json({
       message: "Vehicle charge extremes",
-      data: results[0],
+      data: {
+        highest: maxResult,
+        lowest: nextMaxResult || null
+      }
     });
   } catch (error) {
     console.error("Error getting charges:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const getPrevWeightOfVehicle = async (req, res) => {
   
