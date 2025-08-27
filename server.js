@@ -24,11 +24,22 @@ mongoose
 
 app.use(bodyParser.json());
 app.use(express.json());
+// ✅ CORS Fix
 app.use(
   cors({
-    origin: "*",   // ✅ allow ALL domains
+    origin: (origin, callback) => {
+      // allow requests with no origin (like Postman / curl)
+      if (!origin) return callback(null, true);
+      callback(null, true); // allow ALL origins
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // ✅ allow all methods
+    allowedHeaders: ["Content-Type", "Authorization"], // ✅ allow these headers
+    credentials: true, // ✅ allow cookies / auth headers
   })
 );
+
+// ✅ Ensure preflight requests are handled
+app.options("*", cors());
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: false }));
