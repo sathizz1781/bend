@@ -96,7 +96,7 @@ console.log(req.body);
       return res.status(404).json({ message: "No records found" });
     }
 
-    res.status(200).json({ message: "Last Weight list", data: records });
+    res.status(200).json({ message: "Last Weight list", data: records[0] });
   } catch (error) {
     console.error("Error getting users:", error);
     res.status(500).json({ message: "Internal server error" });
