@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   customerId: { type: String, required: true },
-  email: { type: String, required: true },
+  email: { type: String },
   companyName: { type: String, required: true },
   contactPerson: { type: String, required: true },
   whatsappNumber: { type: String, required: true },
