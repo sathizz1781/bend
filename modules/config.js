@@ -71,23 +71,23 @@ const updateConfig = async (req, res) => {
   }
 };
 
-const getConfig = async(req,res)=>{
-    try {
-        const { phoneNumber } = req.params;
-        if (!phoneNumber) {
-          return res.status(400).json({ message: "Phone Number is required" });
-        }
-        const configResult = await mongoose.connection.db
-          .collection("config")
-          .findOne({ phoneNumber })
-        
-        res.status(200).json({
-          message: "Config data",
-          data: configResult||{}
-        });
-      } catch (error) {
-        console.error("Error getting charges:", error);
-        res.status(500).json({ message: "Internal server error" });
-      }
-}
+const getConfig = async (req, res) => {
+  try {
+    const configResult = await mongoose.connection.db
+      .collection("config")
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return res.status(200).json({
+      message: "Config data",
+      data: configResult || []
+    });
+
+  } catch (error) {
+    console.error("Error getting config:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = { createConfig ,getConfig,updateConfig};

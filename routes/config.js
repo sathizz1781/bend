@@ -6,6 +6,6 @@ const { createConfig,getConfig,updateConfig } = require("../modules/config");
 
 router.post("/post", createConfig);
 router.put("/put/:phoneNumber",updateConfig)
-router.get("/get/:phoneNumber", getConfig);
+router.get("/get", getConfig);
 
 module.exports = router;
