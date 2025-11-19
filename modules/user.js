@@ -44,7 +44,7 @@ const createUser = async (req, res) => {
 };
 const updateUser = async(req,res)=>{
   try{
-    const { customerId } = req.params; 
+    const { customerId ,wbNumber} = req.params; 
     const updateData = { ...req.body };
 
     // Optionally remove fields that shouldn't be updated (e.g., customerId)
@@ -52,7 +52,7 @@ const updateUser = async(req,res)=>{
 
     // Assuming db is your connected database instance
     const updatedUser = await User.findOneAndUpdate(
-      { customerId },
+      { customerId,wb_number:wbNumber },
       { $set: updateData },
       { new: true }
     );
@@ -71,8 +71,9 @@ const updateUser = async(req,res)=>{
   }
 }
 const userList = async (req, res) => {
+  const wb_number = req.params.wbNumber;
   try {
-    const users = await User.find().sort({ customerId: -1 });
+    const users = await User.find({wb_number}).sort({ customerId: -1 });
 
     res.status(200).json({ message: "Users retrieved successfully", users });
   } catch (error) {

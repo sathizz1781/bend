@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
 
 const getLastBill = async (req, res) => {
+  const wb_number = req.params.wbNumber;
   const collection = mongoose.connection.db.collection("wb");
   try {
     const lastRecord = await mongoose.connection.db
       .collection("wb")
-      .findOne({}, { sort: { sl_no: -1 } }); // Corrected syntax
+      .findOne({wb_number}, { sort: { sl_no: -1 } }); // Corrected syntax
 
     if (!lastRecord) {
       return res.status(404).json({ message: "No records found" });
@@ -36,7 +37,7 @@ const getCharges = async (req, res) => {
 };
 const getVehicleChargeExtremes = async (req, res) => {
   try {
-    const { vehicleNo } = req.params;
+    const { vehicleNo,wbNumber } = req.params;
 
     if (!vehicleNo) {
       return res.status(400).json({ message: "vehicle_no is required" });
@@ -45,7 +46,7 @@ const getVehicleChargeExtremes = async (req, res) => {
     // Step 1: find the highest charge
     const [maxResult] = await mongoose.connection.db
       .collection("wb")
-      .find({ vehicle_no: vehicleNo })
+      .find({ vehicle_no: vehicleNo,wb_number:wbNumber })
       .sort({ charges: -1, sl_no: -1 })
       .limit(1)
       .toArray();
@@ -84,11 +85,12 @@ const getPrevWeightOfVehicle = async (req, res) => {
   try {
 console.log(req.body);
     const vehicleNo = req.body.vehicleNo;
+    const wb_number = req.body.wb_number
     
     // Retrieve all records for the given vehicleNo sorted descending by sl_no
     const records = await mongoose.connection.db
       .collection("wb")
-      .find({ vehicle_no: vehicleNo })
+      .find({ vehicle_no: vehicleNo ,wb_number})
       .sort({ sl_no: -1 })
       .toArray();
 
@@ -103,7 +105,7 @@ console.log(req.body);
   }
 };
 const updatePaidStatus = async (req, res) => {
-  const { sl_nos } = req.body;
+  const { sl_nos,wb_number } = req.body;
 
   if (!sl_nos || !Array.isArray(sl_nos) || sl_nos.length === 0) {
     return res.status(400).json({ message: "sl Nos array is required" });
@@ -113,7 +115,7 @@ const updatePaidStatus = async (req, res) => {
     const result = await mongoose.connection.db
       .collection("wb")
       .updateMany(
-        { sl_no: { $in: sl_nos } },
+        { sl_no: { $in: sl_nos },wb_number },
         { $set: { paid_status: true } }
       );
 
@@ -130,7 +132,7 @@ const updatePaidStatus = async (req, res) => {
 
 
 const getRecords = async (req, res) => {
-  const { startDate, endDate, vehicleNo, partyName } = req.body;
+  const { startDate, endDate, vehicleNo, partyName,wb_number } = req.body;
 
   if (!startDate || !endDate) {
     return res
@@ -185,7 +187,8 @@ const getRecords = async (req, res) => {
         $match: {
           normDate: { $gte: start, $lte: end },
           ...(vehicleNo ? { vehicle_no: vehicleNo } : {}),
-          ...(partyName ? { partyName: { $regex: partyName, $options: "i" } } : {})
+          ...(partyName ? { partyName: { $regex: partyName, $options: "i" } } : {}),
+          wb_number
         }
       },
       { $sort: { sl_no: -1 } }
@@ -225,7 +228,9 @@ const postBill = async(req,res)=>{
   "net_weight": isNaN(Number(bodyData.netWeight))
       ? 0
       : Number(bodyData.netWeight),
-  "whatsapp": bodyData.whatsappNumber
+  "whatsapp": bodyData.whatsappNumber,
+  "customerId":bodyData.customerId,
+  "wb_number":bodyData.wb_number
 
   }
   const result = await mongoose.connection.db
@@ -247,7 +252,7 @@ const postBill = async(req,res)=>{
 const getSingleRecord = async (req, res) => {
   try {
     console.log(req.body);
-    const { sl_no } = req.body;
+    const { sl_no,wb_number } = req.body;
 
     if (!sl_no) {
       return res.status(400).json({ message: "sl_no is required" });
@@ -255,7 +260,7 @@ const getSingleRecord = async (req, res) => {
 
     const record = await mongoose.connection.db
       .collection("wb")
-      .findOne({ sl_no });
+      .findOne({ sl_no,wb_number });
 
     if (!record) {
       return res.status(404).json({ message: "No record found" });

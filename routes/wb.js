@@ -4,14 +4,14 @@ const router = express.Router();
 const path = require("path");
 const { getLastBill ,getPrevWeightOfVehicle,getRecords,getCharges,postBill,getSingleRecord,updatePaidStatus,getVehicleChargeExtremes} = require("../modules/wb");
 
-router.get("/getlastbill", getLastBill);
+router.get("/getlastbill/:wbNumber", getLastBill);
 router.post("/getprevweightofvehicle", getPrevWeightOfVehicle);
 router.post("/postbill", postBill);
 router.post("/getrecords", getRecords );
 router.get("/charges", getCharges );
 router.post("/getsinglerecords", getSingleRecord );
 router.post("/updatepaymentstatus", updatePaidStatus );
-router.get("/getchargeextremes/:vehicleNo", getVehicleChargeExtremes);
+router.get("/getchargeextremes/:vehicleNo/:wbNumber", getVehicleChargeExtremes);
 
 
 module.exports = router;
