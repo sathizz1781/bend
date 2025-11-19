@@ -76,7 +76,7 @@ const getConfig = async (req, res) => {
     const configResult = await mongoose.connection.db
       .collection("config")
       .find({})
-      .sort({ createdAt: -1 })
+      .sort({ _id: -1 })
       .toArray();
 
     return res.status(200).json({
