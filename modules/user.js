@@ -26,6 +26,7 @@ const createUser = async (req, res) => {
       locationUrl: req.body.locationUrl || "",
       latitude: req.body.latitude,
       longitude: req.body.longitude,
+      wb_number:req.body.wb_number,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
