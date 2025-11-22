@@ -25,8 +25,8 @@ const createUser = async (req, res) => {
       whatsappNumber: req.body.whatsappNumber || "",
       locationUrl: req.body.locationUrl || "",
       latitude: req.body.latitude,
-      longitude: req.body.longitude,
-      wb_number:req.body.wb_number,
+      longitude: req?.body?.longitude,
+      wb_number:req?.body?.wb_number||"No",
       createdAt: new Date(),
       updatedAt: new Date(),
     });

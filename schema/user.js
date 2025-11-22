@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   longitude: { type: Number, default: 77.75567293167116 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  wb_number:{type:String,default:""}
 });
 
 module.exports = mongoose.model("User", userSchema);
