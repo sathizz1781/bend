@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const user = require("./routes/user");
 const wb = require("./routes/wb");
 const config = require("./routes/config");
+const budget = require("./routes/budget")
 
 const app = express();
 const PORT = 8055;
@@ -47,6 +48,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: false }));
 app.use("/api/user", user);
 app.use("/api/wb", wb);
 app.use("/api/config",config)
+app.use("/api/budget",budget)
 
 // ✅ Start the server
 app.listen(PORT, () => {
